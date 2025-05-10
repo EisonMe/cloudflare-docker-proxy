@@ -1,3 +1,5 @@
+import DOCS from "./help.html";
+
 addEventListener("fetch", (event) => {
   event.passThroughOnException();
   event.respondWith(handleRequest(event.request));
@@ -12,6 +14,7 @@ const routes = {
   ["gcr." + CUSTOM_DOMAIN]: "https://gcr.io",
   ["k8s-gcr." + CUSTOM_DOMAIN]: "https://k8s.gcr.io",
   ["k8s." + CUSTOM_DOMAIN]: "https://registry.k8s.io",
+  ["lscr." + CUSTOM_DOMAIN]: "https://lscr.io",
   ["ghcr." + CUSTOM_DOMAIN]: "https://ghcr.io",
   ["cloudsmith." + CUSTOM_DOMAIN]: "https://docker.cloudsmith.io",
   ["ecr." + CUSTOM_DOMAIN]: "https://public.ecr.aws",
@@ -40,9 +43,20 @@ async function handleRequest(request) {
       }),
       {
         status: 404,
-      }
+      },
     );
   }
+
+  // return tips.html
+  if (url.pathname === "/") {
+    return new Response(DOCS, {
+      status: 200,
+      headers: {
+        "content-type": "text/html",
+      },
+    });
+  }
+
   const isDockerHub = upstream == dockerHub;
   const authorization = request.headers.get("Authorization");
   if (url.pathname == "/v2/") {
@@ -154,16 +168,16 @@ async function fetchToken(wwwAuthenticate, scope, authorization) {
 }
 
 function responseUnauthorized(url) {
-  const headers = new(Headers);
+  const headers = new Headers();
   if (MODE == "debug") {
     headers.set(
       "Www-Authenticate",
-      `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`
+      `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`,
     );
   } else {
     headers.set(
       "Www-Authenticate",
-      `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`
+      `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`,
     );
   }
   return new Response(JSON.stringify({ message: "UNAUTHORIZED" }), {
