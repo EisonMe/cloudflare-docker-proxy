@@ -10,7 +10,7 @@ port = 8787
 local_protocol = "http"
 
 [env.vars]
-CUSTOM_DOMAIN = "keveon.io"
+CUSTOM_DOMAIN = "995579.xyz"
 
 [env.dev.vars]
 MODE = "debug"
